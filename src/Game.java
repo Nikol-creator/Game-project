@@ -6,6 +6,9 @@ import java.util.Random;
 
 public class Game extends JPanel implements ActionListener, KeyListener, MouseListener {
 
+    static ArrayList<Leaf> leaves = new ArrayList<>();
+    static boolean allSplit = false;
+
     Toolkit toolkit = Toolkit.getDefaultToolkit();
     Dimension screenSize = toolkit.getScreenSize();
     private final int screenWidth = screenSize.width;
@@ -120,12 +123,12 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
 
                 g.setColor(Color.WHITE);
                 g.setFont(new Font("Arial", Font.PLAIN, 40));
-                g.drawString("Счет: " + score, 10, 40);  // Выводим счет игрока на экран
+                g.drawString("Счет: " + score, 10, 40);
                 g.drawString("Здоровье: " + player.health + "/" + player.maxHealth, 220, 40);
 
                 if (gameOver) {
                     g.setFont(new Font("Arial", Font.PLAIN, 100));
-                    g.drawString("Конец игры", 770, 500);  // Выводим надпись "Конец игры" при окончании игры
+                    g.drawString("Конец игры", 770, 500);
                 }
 
             }
@@ -259,11 +262,20 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     }
 
     public void walls() {
-        Random rand = new Random();
-        for (int i = 0; i < 200; i++) {
-            int x = rand.nextInt(210);
-            int y = rand.nextInt(140);
-            wall.add(new Wall(x * 50, y * 50, 50, 50));
+//        Random rand = new Random();
+//        for (int i = 0; i < 200; i++) {
+//            int x = rand.nextInt(210);
+//            int y = rand.nextInt(140);
+//            wall.add(new Wall(x * 50, y * 50, 50, 50));
+//        }
+
+
+        for (int i = 0; i < leaves.size(); i++) {
+            for (int j = 0; j < leaves.get(i).room.x; j++) {
+                for (int k = 0; k < leaves.get(i).room.y; k++) {
+                    wall.add(new Wall(j * 50, k * 50, 50, 50));
+                }
+            }
         }
     }
 
@@ -400,5 +412,27 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
 
     @Override
     public void mouseExited(MouseEvent e) {
+    }
+
+    public void level() {
+        Leaf rootLeaf = new Leaf(0, 0, 20, 20);
+        leaves.add(rootLeaf);
+
+        while (!allSplit) {
+            allSplit = true;
+            for (int i = 0; i < leaves.size(); i++) {
+                //    System.out.println(leaves.get(i).x + " " + leaves.get(i).y);
+                System.out.println(leaves.get(i).canSplit());
+                //   leaves.get(i).split();
+                if (leaves.get(i).canSplit()) {
+                    leaves.get(i).split();
+                    leaves.add(leaves.get(i).leftChild);
+                    leaves.add(leaves.get(i).rightChild);
+                    allSplit = false;
+                }
+            }
+        }
+
+        rootLeaf.createRooms();
     }
 }
