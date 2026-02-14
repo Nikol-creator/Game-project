@@ -57,7 +57,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         timer.start();
     }
 
-    static void main() {
+    public static void main(String[] args) {
         //   JFrame frame = new JFrame("Simple Game");
         Game game = new Game();
         frame.add(game);
@@ -74,7 +74,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         cameraX = player.x - 800;
         cameraY = player.y - 450;
 
-
+/*
         if (inGame) {
 
 
@@ -146,6 +146,8 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
                 g.drawImage(img1, button1.x, button1.y, button1.width, button1.height, null);
             }*/
 
+        /*
+
             button1.paint(g);
 
             if (mouseX > 1000 && mouseX < 1192 && mouseY > 700 && mouseY < 808) {
@@ -177,6 +179,26 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
                 g.drawImage(img1, 1000, 500, 192, 108, null);
             }
         }
+
+        */
+
+        for (Wall value : wall) {
+            g.setColor(Color.CYAN);
+            g.fillRect(value.x, value.y, value.width, value.height);
+        }
+
+
+
+        for (int k = 0; k < leaves.size(); k++) {
+//                    if (i >= leaves.get(k).room.x && i <= leaves.get(k).room.x + leaves.get(k).room.width && j >= leaves.get(k).room.y && j <= leaves.get(k).room.y + leaves.get(k).room.height) break;
+            if (leaves.get(k).room != null) {
+                g.setColor(Color.getHSBColor((float) (Math.random() * 250), (float) (Math.random() * 250), (float) (Math.random() * 250)));
+                g.fillRect(leaves.get(k).room.x * 10, leaves.get(k).room.y * 10, leaves.get(k).room.width * 10, leaves.get(k).room.height * 10);
+            }
+        }
+
+
+
     }
 
     @Override
@@ -242,8 +264,6 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
 
 
 
-
-
         if (!gameOver) {
 
 
@@ -262,6 +282,8 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     }
 
     public void walls() {
+        level();
+
 //        Random rand = new Random();
 //        for (int i = 0; i < 200; i++) {
 //            int x = rand.nextInt(210);
@@ -270,11 +292,34 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
 //        }
 
 
-        for (int i = 0; i < leaves.size(); i++) {
-            for (int j = 0; j < leaves.get(i).room.x; j++) {
-                for (int k = 0; k < leaves.get(i).room.y; k++) {
-                    wall.add(new Wall(j * 50, k * 50, 50, 50));
+//        for (int i = 0; i < leaves.size(); i++) {
+//            for (int j = 0; j < leaves.get(i).room.x; j++) {
+//                for (int k = 0; k < leaves.get(i).room.y; k++) {
+//                    wall.add(new Wall(j * 50, k * 50, 50, 50));
+//                }
+//            }
+//        }
+
+
+
+
+        for (int k = 0; k < leaves.size(); k++) {
+//                    if (i >= leaves.get(k).room.x && i <= leaves.get(k).room.x + leaves.get(k).room.width && j >= leaves.get(k).room.y && j <= leaves.get(k).room.y + leaves.get(k).room.height) break;
+            if (leaves.get(k).room != null) {
+                System.out.println(leaves.get(k).room.x + " " + leaves.get(k).room.y + " " + leaves.get(k).room.width + " " + leaves.get(k).room.height);
+            }
+        }
+
+
+
+        for (int i = 0; i < 50; i++) {
+            for (int j = 0; j < 50; j++) {
+                for (int k = 0; k < leaves.size(); k++) {
+                    if (i >= leaves.get(k).room.x && i <= leaves.get(k).room.x + leaves.get(k).room.width && j >= leaves.get(k).room.y && j <= leaves.get(k).room.y + leaves.get(k).room.height) break;
+//                    System.out.println(leaves.get(k).getRoom().x + " " + leaves.get(k).getRoom().y + " " + leaves.get(k).getRoom().width + " " + leaves.get(k).getRoom().height);
                 }
+                wall.add(new Wall(i * 10, j * 10, 10, 10));
+//                System.out.println(i + " " + j);
             }
         }
     }
@@ -298,6 +343,11 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     public void keyPressed(KeyEvent e) {
         int key = e.getKeyCode();
         int A = KeyEvent.VK_A;
+        if (key == KeyEvent.VK_I) {
+            mainMenu = false;
+            inGame = true;
+            settingsMain = false;
+        }
         if (key == KeyEvent.VK_U) {
             mainMenu = true;
             inGame = false;
@@ -415,14 +465,14 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     }
 
     public void level() {
-        Leaf rootLeaf = new Leaf(0, 0, 20, 20);
+        Leaf rootLeaf = new Leaf(0, 0, 50, 50);
         leaves.add(rootLeaf);
 
         while (!allSplit) {
             allSplit = true;
             for (int i = 0; i < leaves.size(); i++) {
                 //    System.out.println(leaves.get(i).x + " " + leaves.get(i).y);
-                System.out.println(leaves.get(i).canSplit());
+//                System.out.println(leaves.get(i).canSplit());
                 //   leaves.get(i).split();
                 if (leaves.get(i).canSplit()) {
                     leaves.get(i).split();
