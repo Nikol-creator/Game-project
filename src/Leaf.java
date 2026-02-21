@@ -79,4 +79,30 @@ public class Leaf {
             else return rightRoom;
         }
     }
+
+    public void createCorridor(Room room1, Room room2) {
+        Random random = new Random();
+        int AX = room1.x + random.nextInt(room1.width);
+        int AY = room1.y + random.nextInt(room1.height);
+        int BX = room2.x + random.nextInt(room2.width);
+        int BY = room2.y + random.nextInt(room2.height);
+
+        int dX = BX - AX;
+        int dY = BY - AY;
+
+        Room corridor1;
+        Room corridor2;
+
+        if (dX > 0) {
+            if (dY > 0) {
+                corridor1 = new Room(AX, BY, Math.abs(dX), 1);
+                corridor2 = new Room(AX, AY, 1, Math.abs(dY));
+            }
+            else if (dY < 0) {
+                corridor1 = new Room(AX, BY, Math.abs(dX), 1);
+                corridor2 = new Room(AX, BY, Math.abs(dY), 1);
+            }
+            else corridor1 = new Room(AX, AY, Math.abs(dX), 1);
+        }
+    }
 }
