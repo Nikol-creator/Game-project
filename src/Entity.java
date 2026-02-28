@@ -8,6 +8,11 @@ public class Entity {
     int maxHealth = 0;
     int width = 0;
     int height = 0;
+    boolean lkhj = false;
+
+    int targetX = 0;
+    int targetY = 0;
+    int wanderDistance = 0;
 
     public Entity() {
     }
@@ -74,6 +79,15 @@ public class Entity {
 
     public int distance(Entity entity) {
         return (int) Math.sqrt(Math.abs((this.x - entity.x) * (this.x - entity.x)) + Math.abs((this.y - entity.y) * (this.y - entity.y)));
+    }
+
+    public void wander(ArrayList<Wall> wall) {
+        if (this.x != targetX || this.y != targetY) {
+            this.moveTo(targetX, targetY, wall);
+        } else if (Math.random() > 0.95) {
+            targetX = (int) (wanderDistance * Math.random());
+            targetY = (int) (wanderDistance * Math.random());
+        }
     }
 
     public void combustion() {
