@@ -16,7 +16,7 @@ public class Bullet extends Entity{
     public Bullet() {
     }
 
-    public void move(ArrayList<Wall> wall) {
+    public boolean move(ArrayList<Wall> wall) {
         int speedX = 0;
         int speedY = 0;
         boolean canMove = true;
@@ -26,7 +26,7 @@ public class Bullet extends Entity{
             for (int j = 0; j < wall.size(); j++) {
                 if ((this.x + this.width + 1 == wall.get(j).x && speedX > 0 || this.x + 1 == wall.get(j).x + wall.get(j).width && speedX < 0) && this.y + this.height > wall.get(j).y && this.y < wall.get(j).y + wall.get(j).height) {
                     canMove = false;
-                    break;
+                    return true;
                 }
                 else canMove = true;
             }
@@ -36,11 +36,12 @@ public class Bullet extends Entity{
             for (int j = 0; j < wall.size(); j++) {
                 if ((this.y + this.height + 1 == wall.get(j).y && speedY > 0 || this.y + 1 == wall.get(j).y + wall.get(j).height && speedY < 0) && this.x + this.width > wall.get(j).x && this.x < wall.get(j).x + wall.get(j).width) {
                     canMove = false;
-                    break;
+                    return true;
                 }
                 else canMove = true;
             }
             if (canMove) this.y += (speedY / Math.abs(speedY));
         }
+        return false;
     }
 }

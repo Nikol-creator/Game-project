@@ -27,9 +27,10 @@ public class Entity {
         boolean canMove = true;
         speedX = (int) ((x - this.x) * speed / Math.sqrt((x - this.x)*(x - this.x) + (y - this.y)*(y - this.y)));
         speedY = (int) ((y - this.y) * speed / Math.sqrt((x - this.x)*(x - this.x) + (y - this.y)*(y - this.y)));
+        /*
         for (int i = 0; i < Math.abs(speedX); i++) {
             for (int j = 0; j < wall.size(); j++) {
-                if ((this.x + this.width + 1 == wall.get(j).x && speedX > 0 || this.x + 1 == wall.get(j).x + wall.get(j).width && speedX < 0) && this.y + this.height > wall.get(j).y && this.y < wall.get(j).y + wall.get(j).height) {
+                if ((this.x + this.width == wall.get(j).x && speedX > 0 || this.x == wall.get(j).x + wall.get(j).width && speedX < 0) && this.y + this.height > wall.get(j).y && this.y < wall.get(j).y + wall.get(j).height) {
                     canMove = false;
                     break;
                 }
@@ -39,7 +40,7 @@ public class Entity {
         }
         for (int i = 0; i < Math.abs(speedY); i++) {
             for (int j = 0; j < wall.size(); j++) {
-                if ((this.y + this.height + 1 == wall.get(j).y && speedY > 0 || this.y + 1 == wall.get(j).y + wall.get(j).height && speedY < 0) && this.x + this.width > wall.get(j).x && this.x < wall.get(j).x + wall.get(j).width) {
+                if ((this.y + this.height == wall.get(j).y && speedY > 0 || this.y == wall.get(j).y + wall.get(j).height && speedY < 0) && this.x + this.width > wall.get(j).x && this.x < wall.get(j).x + wall.get(j).width) {
                     canMove = false;
                     break;
                 }
@@ -47,34 +48,43 @@ public class Entity {
             }
             if (canMove) this.y += (speedY / Math.abs(speedY));
         }
+
+         */
+
+
+        int jkl = Math.abs(speedX);
+        int sld = Math.abs(speedY);
+        while (jkl >= 0 || sld >= 0) {
+            for (int j = 0; j < wall.size(); j++) {
+                if ((this.x + this.width == wall.get(j).x && speedX > 0 || this.x == wall.get(j).x + wall.get(j).width && speedX < 0) && this.y + this.height > wall.get(j).y && this.y < wall.get(j).y + wall.get(j).height) {
+                    canMove = false;
+                    break;
+                } else canMove = true;
+            }
+            if (canMove && jkl > 0) this.x += (speedX / Math.abs(speedX));
+            jkl -= 1;
+
+            for (int j = 0; j < wall.size(); j++) {
+                if ((this.y + this.height == wall.get(j).y && speedY > 0 || this.y == wall.get(j).y + wall.get(j).height && speedY < 0) && this.x + this.width > wall.get(j).x && this.x < wall.get(j).x + wall.get(j).width) {
+                    canMove = false;
+                    break;
+                } else canMove = true;
+            }
+            if (canMove && sld > 0) this.y += (speedY / Math.abs(speedY));
+            sld -= 1;
+        }
+
+
+
+
     }
 
     public void moveTo(Entity entity, ArrayList<Wall> wall) {
-        int speedX = 0;
-        int speedY = 0;
-        boolean canMove = true;
-        speedX = (int) ((entity.x - this.x) * speed / Math.sqrt((entity.x - this.x)*(entity.x - this.x) + (entity.y - this.y)*(entity.y - this.y)));
-        speedY = (int) ((entity.y - this.y) * speed / Math.sqrt((entity.x - this.x)*(entity.x - this.x) + (entity.y - this.y)*(entity.y - this.y)));
-        for (int i = 0; i < Math.abs(speedX); i++) {
-            for (int j = 0; j < wall.size(); j++) {
-                if ((this.x + this.width + 1 == wall.get(j).x && speedX > 0 || this.x + 1 == wall.get(j).x + wall.get(j).width && speedX < 0) && this.y + this.height > wall.get(j).y && this.y < wall.get(j).y + wall.get(j).height) {
-                    canMove = false;
-                    break;
-                }
-                else canMove = true;
-            }
-            if (canMove) this.x += (speedX / Math.abs(speedX));
-        }
-        for (int i = 0; i < Math.abs(speedY); i++) {
-            for (int j = 0; j < wall.size(); j++) {
-                if ((this.y + this.height + 1 == wall.get(j).y && speedY > 0 || this.y + 1 == wall.get(j).y + wall.get(j).height && speedY < 0) && this.x + this.width > wall.get(j).x && this.x < wall.get(j).x + wall.get(j).width) {
-                    canMove = false;
-                    break;
-                }
-                else canMove = true;
-            }
-            if (canMove) this.y += (speedY / Math.abs(speedY));
-        }
+        this.moveTo(entity.x + entity.width / 2, entity.y + entity.height / 2, wall);
+    }
+
+    public void rtui(int d) {
+
     }
 
     public int distance(Entity entity) {

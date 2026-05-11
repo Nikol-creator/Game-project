@@ -8,6 +8,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
 
     static ArrayList<Leaf> leaves = new ArrayList<>();
     static boolean allSplit = false;
+    static ArrayList<Room> corridors = new ArrayList<>();
 
     Toolkit toolkit = Toolkit.getDefaultToolkit();
     Dimension screenSize = toolkit.getScreenSize();
@@ -17,7 +18,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     private int cameraX = 0;
     private int cameraY = 0;
 
-    Player player = new Player(1, 0, 48, 48, 15);
+    Player player = new Player(1, 0, 48, 48, 17);
 
     ArrayList<Wall> wall = new ArrayList<>();
     ArrayList<PlayerBullet> playerBullet = new ArrayList<>();
@@ -42,7 +43,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     private boolean moveA = false;
     private boolean moveS = false;
     private boolean moveD = false;
-    int score = 0;
+    int cooldown = 0;
     private static double mouseX = 0;
     private static double mouseY = 0;
     private boolean newFloor = true;
@@ -182,20 +183,62 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
 
         */
 
+        for (int i = -2; i < 2; i++) {
+            for (int j = -2; j < 2; j++) {
+                g.setColor(Color.DARK_GRAY);
+//                g.fillRect(-cameraX + i * 1920, -cameraY + j * 1080, 1920, 1080);
+            }
+        }
+        g.setColor(Color.LIGHT_GRAY);
+        g.fillRect(-1920, -1080, 19200, 10800);
+
+
         for (Wall value : wall) {
-            g.setColor(Color.CYAN);
-            g.fillRect(value.x, value.y, value.width, value.height);
+            g.setColor(Color.GRAY);
+            g.fillRect(value.x - cameraX, value.y - cameraY, value.width, value.height);
+        }
+
+//        g.setColor(Color.GREEN);
+//        g.fillRect(player.x - cameraX, player.y - cameraY, player.width, player.height);
+        Image imgp = new ImageIcon(".idea/images/player.png").getImage();
+        g.drawImage(imgp, player.x - cameraX, player.y - cameraY, player.width, player.height, null);
+
+
+
+        for (Rat value : rat) {
+//            g.setColor(Color.RED);
+//            g.fillRect(value.x - cameraX, value.y - cameraY, value.width, value.height);
+            Image img = new ImageIcon(".idea/images/slime.png").getImage();
+            g.drawImage(img, value.x - cameraX, value.y - cameraY, value.width, value.height, null);
         }
 
 
+        for (Shooter value : shooter) {
+//            g.setColor(Color.ORANGE);
+//            g.fillRect(value.x - cameraX, value.y - cameraY, value.width, value.height);
+            Image img = new ImageIcon(".idea/images/shooter.png").getImage();
+            g.drawImage(img, value.x - cameraX, value.y - cameraY, value.width, value.height, null);
+        }
 
-        for (int k = 0; k < leaves.size(); k++) {
+
+        for (PlayerBullet bullet : playerBullet) {
+            g.setColor(Color.BLACK);
+            g.fillOval(bullet.x - cameraX, bullet.y - cameraY, bullet.width, bullet.height);
+        }
+
+        for (EnemyBullet bullet : enemyBullet) {
+            g.setColor(Color.RED);
+            g.fillOval(bullet.x - cameraX, bullet.y - cameraY, bullet.width, bullet.height);
+        }
+
+
+     /*   for (int k = 0; k < leaves.size(); k++) {
 //                    if (i >= leaves.get(k).room.x && i <= leaves.get(k).room.x + leaves.get(k).room.width && j >= leaves.get(k).room.y && j <= leaves.get(k).room.y + leaves.get(k).room.height) break;
             if (leaves.get(k).room != null) {
                 g.setColor(Color.getHSBColor((float) (Math.random() * 250), (float) (Math.random() * 250), (float) (Math.random() * 250)));
                 g.fillRect(leaves.get(k).room.x * 10, leaves.get(k).room.y * 10, leaves.get(k).room.width * 10, leaves.get(k).room.height * 10);
             }
-        }
+        }*/
 
 
 
@@ -228,19 +271,23 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         }
 
         for (Shooter value : shooter) {
-            if (value.distance(player) < 700 && value.distance(player) > 200) {
+            if (value.distance(player) < 750 && value.distance(player) > 300) {
                 value.moveTo(player, wall);
             }
-            enemyBullet.add(new EnemyBullet(value.x, value.y, player.x, player.y));
+            if (value.distance(player) < 450) {
+                if (value.timeShot > 30) {
+                    enemyBullet.add(new EnemyBullet(value.x + value.width/2, value.y + value.height/2, player.x + player.width/2, player.y + player.height/2));
+                    value.timeShot = 0;
+                }
+            }
+            value.timeShot ++;
         }
 
         for (int i = 0; i < playerBullet.size(); i++) {
-            playerBullet.get(i).move(wall);
-            if (playerBullet.get(i).distance(player) > 1000) playerBullet.remove(i);
+            if(playerBullet.get(i).move(wall)) playerBullet.remove(i);
         }
         for (int i = 0; i < enemyBullet.size(); i++) {
-            enemyBullet.get(i).move(wall);
-            if (enemyBullet.get(i).distance(player) > 1000) enemyBullet.remove(i);
+            if(enemyBullet.get(i).move(wall)) enemyBullet.remove(i);
         }
 
         for (int i = 0; i < enemyBullet.size(); i++) {
@@ -251,16 +298,33 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
             for (Rat value : rat) {
                 if (value.collision(playerBullet.get(i))) {
                     value.damage(3);
-                    //  playerBullet.remove(i);
+                    playerBullet.remove(i);
+                    break;
                 }
             }
+        }
+        for (int i = 0; i < playerBullet.size(); i++) {
             for (Shooter value : shooter) {
                 if (value.collision(playerBullet.get(i))) {
                     value.damage(3);
                     playerBullet.remove(i);
+                    break;
                 }
             }
         }
+
+        for (int i = 0; i < rat.size(); i++) {
+            if (rat.get(i).health <= 0) {
+                rat.remove(i);
+            }
+        }
+        for (int i = 0; i < shooter.size(); i++) {
+            if (shooter.get(i).health <= 0) {
+                shooter.remove(i);
+            }
+        }
+
+        cooldown --;
 
 
 
@@ -272,10 +336,10 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
 
             if (newFloor) {
                 walls();
-                rat.add(new Rat(30, 90));
-                rat.add(new Rat(300, 900));
-                rat.add(new Rat(3000, 90));
-                shooter.add(new Shooter(100, 300));
+//                rat.add(new Rat(30, 90));
+//                rat.add(new Rat(300, 900));
+//                rat.add(new Rat(3000, 90));
+//                shooter.add(new Shooter(100, 300));
                 newFloor = false;
             }
         }
@@ -300,6 +364,9 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
 //            }
 //        }
 
+//        for (int k = 0; k < leaves.size(); k++) {
+//            if (leaves.get(k).room != null) rat.add(new Rat(leaves.get(k).room.height - 5, leaves.get(k).room.y + 2));
+//        }
 
 
 
@@ -311,15 +378,29 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         }
 
 
-
-        for (int i = 0; i < 50; i++) {
-            for (int j = 0; j < 50; j++) {
+        boolean wal = false;
+        wall.add(new Wall(-5 * 50, -5 * 50, 50, 50));
+        for (int i = -5; i < 200; i++) {
+            for (int j = -5; j < 200; j++) {
                 for (int k = 0; k < leaves.size(); k++) {
-                    if (i >= leaves.get(k).room.x && i <= leaves.get(k).room.x + leaves.get(k).room.width && j >= leaves.get(k).room.y && j <= leaves.get(k).room.y + leaves.get(k).room.height) break;
+                    if (leaves.get(k).corridor1 != null) if ((i >= leaves.get(k).corridor1.x && i < leaves.get(k).corridor1.x + leaves.get(k).corridor1.width && j >= leaves.get(k).corridor1.y && j < leaves.get(k).corridor1.y + leaves.get(k).corridor1.height) || (i >= leaves.get(k).corridor2.x && i < leaves.get(k).corridor2.x + leaves.get(k).corridor2.width && j >= leaves.get(k).corridor2.y && j < leaves.get(k).corridor2.y + leaves.get(k).corridor2.height)) {
+                        wal = false;
+                        break;
+                    }
+
+                    if (leaves.get(k).room != null) if (i >= leaves.get(k).room.x && i < leaves.get(k).room.x + leaves.get(k).room.width && j >= leaves.get(k).room.y && j < leaves.get(k).room.y + leaves.get(k).room.height) {
+                        wal = false;
+                        if (i > 5 && j > 5) {
+                            if (Math.random() < 0.006) rat.add(new Rat(i * 50, j * 50));
+                            if (Math.random() < 0.002) shooter.add(new Shooter(i * 50, j * 50));
+                        }
+                        break;
+                    }
 //                    System.out.println(leaves.get(k).getRoom().x + " " + leaves.get(k).getRoom().y + " " + leaves.get(k).getRoom().width + " " + leaves.get(k).getRoom().height);
                 }
-                wall.add(new Wall(i * 10, j * 10, 10, 10));
-//                System.out.println(i + " " + j);
+                if (wal) wall.add(new Wall(i * 50, j * 50, 50, 50));
+                if (wal) System.out.println(i + " " + j);
+                wal = true;
             }
         }
     }
@@ -347,6 +428,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
             mainMenu = false;
             inGame = true;
             settingsMain = false;
+            timer.stop();
         }
         if (key == KeyEvent.VK_U) {
             mainMenu = true;
@@ -372,8 +454,9 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
                 moveD = true;
             }
 
-            if (key == KeyEvent.VK_L) {
-                playerBullet.add(new PlayerBullet(player.x, player.y, (int) mouseX, (int) mouseY));
+            if (key == KeyEvent.VK_SPACE && cooldown <= 0) {
+                playerBullet.add(new PlayerBullet(player.x + player.width / 2, player.y + player.height / 2, (int) mouseX + cameraX, (int) mouseY + cameraY));
+                cooldown = 10;
             }
 
           /*  if (key == KeyEvent.VK_SPACE) {
@@ -465,7 +548,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     }
 
     public void level() {
-        Leaf rootLeaf = new Leaf(0, 0, 50, 50);
+        Leaf rootLeaf = new Leaf(0, 0, 200, 200);
         leaves.add(rootLeaf);
 
         while (!allSplit) {

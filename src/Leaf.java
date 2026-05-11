@@ -9,11 +9,13 @@ public class Leaf {
     Leaf rightChild = null;
     int minSize = 60;
     Room room = null;
+    Room corridor1;
+    Room corridor2;
 
-    int minWidth = 3;
-    int minHeight = 3;
-    int maxWidth = 9;
-    int maxHeight = 9;
+    int minWidth = 10;
+    int minHeight = 10;
+    int maxWidth = 40;
+    int maxHeight = 40;
 
     public Leaf(int x, int y, int width, int height) {
         this.x = x;
@@ -56,10 +58,15 @@ public class Leaf {
         if (leftChild != null || rightChild != null) {
             if (leftChild != null) leftChild.createRooms();
             if (rightChild != null) rightChild.createRooms();
+            if (leftChild != null && rightChild != null) {
+                createCorridor(leftChild.getRoom(), rightChild.getRoom());
+            }
         }
         else {
             Random random = new Random();
-            room = new Room(x, y, width, height);
+            room = new Room(x, y, width - 5, height - 5);
+
+
         }
     }
 
@@ -90,19 +97,71 @@ public class Leaf {
         int dX = BX - AX;
         int dY = BY - AY;
 
-        Room corridor1;
-        Room corridor2;
-
         if (dX > 0) {
             if (dY > 0) {
-                corridor1 = new Room(AX, BY, Math.abs(dX), 1);
+                if (Math.random() > 0.5) {
+                    corridor1 = new Room(AX, BY, Math.abs(dX), 1);
+                    corridor2 = new Room(AX, AY, 1, Math.abs(dY));
+                }
+                else {
+                    corridor1 = new Room(BX, AY, 1, Math.abs(dY));
+                    corridor2 = new Room(AX, AY, Math.abs(dX), 1);
+                }
+            }
+            else if (dY < 0) {
+                if (Math.random() > 0.5) {
+                    corridor1 = new Room(AX, BY, Math.abs(dX), 1);
+                    corridor2 = new Room(AX, BY, 1, Math.abs(dY));
+                }
+                else {
+                    corridor1 = new Room(AX, AY, Math.abs(dX), 1);
+                    corridor2 = new Room(BX, BY, 1, Math.abs(dY));
+                }
+            }
+            else {
+                corridor1 = new Room(AX, AY, Math.abs(dX), 1);
+                corridor2 = new Room(AX, AY, Math.abs(dX), 1);
+            }
+        }
+        else if (dX < 0) {
+            if (dY > 0) {
+                if (Math.random() > 0.5) {
+                    corridor1 = new Room(BX, AY, Math.abs(dX), 1);
+                    corridor2 = new Room(BX, AY, 1, Math.abs(dY));
+                }
+                else {
+                    corridor1 = new Room(AX, AY, 1, Math.abs(dY));
+                    corridor2 = new Room(BX, BY, Math.abs(dX), 1);
+                }
+            }
+            else if (dY < 0) {
+                if (Math.random() > 0.5) {
+                    corridor1 = new Room(BX, BY, Math.abs(dX), 1);
+                    corridor2 = new Room(AX, BY, 1, Math.abs(dY));
+                }
+                else {
+                    corridor1 = new Room(BX, AY, Math.abs(dX), 1);
+                    corridor2 = new Room(BX, BY, 1, Math.abs(dY));
+                }
+            }
+            else {
+                corridor1 = new Room(BX, BY, Math.abs(dX), 1);
+                corridor2 = new Room(BX, BY, Math.abs(dX), 1);
+            }
+        }
+        else {
+            if (dY > 0) {
+                corridor1 = new Room(AX, AY, 1, Math.abs(dY));
                 corridor2 = new Room(AX, AY, 1, Math.abs(dY));
             }
             else if (dY < 0) {
-                corridor1 = new Room(AX, BY, Math.abs(dX), 1);
-                corridor2 = new Room(AX, BY, Math.abs(dY), 1);
+                corridor1 = new Room(BX, BY, 1, Math.abs(dY));
+                corridor2 = new Room(BX, BY, 1, Math.abs(dY));
             }
-            else corridor1 = new Room(AX, AY, Math.abs(dX), 1);
+            else {
+                corridor1 = new Room(BX, BY, 1, 1);
+                corridor2 = new Room(BX, BY, 1, 1);
+            }
         }
     }
 }
